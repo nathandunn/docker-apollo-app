@@ -1,0 +1,51 @@
+phpapache:
+    build: php-apache
+    restart: always
+    ports:
+        - "8080:80"
+    links:
+        - db
+    volumes:
+        - ./html/:/var/www/html
+
+db:
+  image: mariadb
+  restart: always
+  environment:
+    - MYSQL_ROOT_PASSWORD=xxxx
+    - MYSQL_DATABASE=ben
+    - MYSQL_USER=ben
+    - MYSQL_PASSWORD=xxxx
+  ports:
+    - "3306:3306" 
+  volumes:
+    - ./mysql/:/docker-entrypoint-initdb.d 
+
+phpmyadmin:
+  image: phpmyadmin/phpmyadmin
+  restart: always
+  links:
+    - db
+  ports:
+    - 8183:80
+  environment:
+    PMA_USER: root
+    PMA_PASSWORD: xxx
+    PMA_ARBITRARY: 1
+
+sequenceserver:
+  build: sequenceserver
+  restart: always
+  ports:
+    - "4567:4567"
+  volumes:
+    - ./data/sequenceserver:/dbs
+
+apollo:
+  image: quay.io/gmod/docker-apollo:latest 
+  restart: always
+  ports:
+    - "8888:8080"
+  volumes:
+    - ./data//jbrowse:/data 
+    - ./data/postgres-data:/var/lib/postgresql
